@@ -1,0 +1,19 @@
+[package]
+name = "Kaleidoscope"
+version = "0.1.0"
+authors = ["max6cn <max6cn@github>"]
+
+[lib]
+name = "lib"
+path = "src/lib/lib.rs"
+test = true
+doc = true
+
+[[bin]]
+name = "Kaleidoscope"
+doc = false
+test = false
+
+[dependencies]
+env_logger = "*"
+log = "*"
