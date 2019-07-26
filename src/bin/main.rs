@@ -1,14 +1,14 @@
-#![feature(core,convert)]
-#![feature(libc,rustc_private)]
+// #![feature(core,convert)]
+// #![feature(libc,rustc_private)]
 #![allow(unused_imports,unused_features,non_camel_case_types)]
 #![allow(non_snake_case,dead_code,unused_variables)]
 #![allow(unused_must_use,unreachable_code)]
-#![feature(scoped)]
+// #![feature(scoped)]
 #[macro_use] extern crate log;
 extern crate env_logger;
 
 extern crate libc;
-extern crate rustc_llvm;
+// extern crate rustc_llvm;
 use std::io;
 use std::io::{Read,Write};
 //use core::ops::Index;
@@ -26,11 +26,11 @@ use lib::Parser::*;
 fn main() {
     env_logger::init().unwrap();
     let (tokenSender, tokenReceiver) = channel();
-    let g1 = thread::scoped(move || {
+    let g1 = thread::spawn(move || {
         let mut lexer = Lexer::new(tokenSender);
         lexer.run();
     });
-    let g2 = thread::scoped(move || {
+    let g2 = thread::spawn(move || {
         let mut parser = Parser::new(tokenReceiver);
         parser.run();
     }); //parser.run();
