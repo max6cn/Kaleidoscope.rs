@@ -282,7 +282,7 @@ mod test {
     use super::Parser;
     use std::sync::mpsc::channel;
     use std::thread::spawn;
-    //#[test]
+    #[test]
     fn test_binopPre() {
         let (tx,rx) = channel();
         let mut parser = Parser::new(rx);

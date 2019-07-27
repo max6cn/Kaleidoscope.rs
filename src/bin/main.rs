@@ -25,7 +25,7 @@ use lib::Lexer::*;
 use lib::Parser::*;
 fn main() {
     env_logger::init().unwrap();
-    let (tokenSender, tokenReceiver) = channel();
+    let (tokenSender, tokenReceiver) = channel::<Token>();
     let g1 = thread::spawn(move || {
         let mut lexer = Lexer::new(tokenSender);
         lexer.run();

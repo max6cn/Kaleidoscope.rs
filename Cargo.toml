@@ -9,10 +9,7 @@ path = "src/lib/lib.rs"
 test = true
 doc = true
 
-[[bin]]
-name = "Kaleidoscope"
-doc = false
-test = false
+
 
 [dependencies]
 env_logger = "*"
