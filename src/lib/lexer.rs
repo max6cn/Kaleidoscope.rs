@@ -1,7 +1,7 @@
 use std::io;
 use std::io::{Read, Write};
 use std::sync::mpsc::{channel, Receiver, Sender};
-use Token::*;
+use token::*;
 
 pub struct Lexer {
     input: Receiver<char>,
@@ -109,8 +109,8 @@ mod test {
     extern crate env_logger;
     extern crate log;
 
-    use super::super::Token::*;
-    use super::Lexer;
+    use super::super::token::*;
+    use super::*;
     use std::sync::mpsc::channel;
     use std::thread;
     #[test]

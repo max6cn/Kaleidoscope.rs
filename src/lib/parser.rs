@@ -1,12 +1,11 @@
-use env_logger;
 use std::collections::HashMap;
 use std::io::{stdin, stdout, Read, Write};
 use std::mem::transmute;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
 //use super::token::{TokChar,TokNumber,TokIdentifier,TokDef,TokEof,TokExtern};
-use Ast::*;
-use Token::*;
+use ast::*;
+use token::*;
 #[derive(Debug)]
 pub struct Parser {
     token_input: Receiver<Token>,
@@ -86,11 +85,11 @@ impl<'a> Parser {
             }
             // eat the ')'
             self.get_next_token();
-            let callast = CallExprAst {
+            let call_expr_ast = CallExprAst {
                 callee: idName,
-                args: args,
+                args,
             };
-            return Some(unsafe { transmute(&callast) });
+            return Some(unsafe { transmute(&call_expr_ast) });
         }
         None
     }
@@ -390,9 +389,9 @@ mod test {
     use std::sync::mpsc::channel;
     use std::thread;
 
-    use super::super::Token::*;
+    use super::super::token::*;
     use super::Parser;
-    use super::super::Lexer::*;
+    use super::super::lexer::*;
     #[test]
     fn test_binop_pre() {
         let (tx, rx) = channel();
