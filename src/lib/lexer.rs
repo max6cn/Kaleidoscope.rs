@@ -20,62 +20,62 @@ impl Lexer {
                 if let Ok(ch) = self.input.recv() {
                     lastchar = ch;
                 } else {
-                    self.output.send(Token::tok_eof);
+                    self.output.send(Token::TokEof);
                 }
             }
             if lastchar.is_alphabetic() {
                 // identifier [a-zA-Z][a-zA-Z0-9]*
-                let mut identifierStr = String::new();
-                identifierStr.push(lastchar);
+                let mut identifier_str = String::new();
+                identifier_str.push(lastchar);
                 loop {
                     match self.input.recv() {
                         Ok(ch) => {
                             if ch.is_alphabetic() {
-                                identifierStr.push(ch);
+                                identifier_str.push(ch);
                             } else {
                                 lastchar = ch;
                                 break;
                             }
                         }
                         Err(e) => {
-                            self.output.send(Token::tok_eof);
+                            self.output.send(Token::TokEof);
                         }
                     }
                 }
                 // FIXME:
                 // if ident matches keyword at begining, we should wait until the
                 // ident match finished
-                match identifierStr.as_str() {
-                    "def" => self.output.send(Token::tok_def),
-                    "extern" => self.output.send(Token::tok_extern),
+                match identifier_str.as_str() {
+                    "def" => self.output.send(Token::TokDef),
+                    "extern" => self.output.send(Token::TokExtern),
                     identifier => self
                         .output
-                        .send(Token::tok_identifier(identifier.to_string())),
+                        .send(Token::TokIdentifier(identifier.to_string())),
                 };
             } else if lastchar.is_digit(10) || lastchar == '.' {
-                let mut numString = String::new();
-                numString.push(lastchar);
+                let mut num_string = String::new();
+                num_string.push(lastchar);
                 loop {
                     match self.input.recv() {
                         Ok(ch) => {
                             if ch.is_digit(10) || ch == '.' {
-                                numString.push(ch);
+                                num_string.push(ch);
                             } else {
                                 lastchar = ch;
                                 break;
                             }
                         }
                         Err(_) => {
-                            self.output.send(Token::tok_eof);
+                            self.output.send(Token::TokEof);
                             return;
                             unreachable!();
                         }
                     }
                 }
-                if let Ok(num) = numString.parse::<f64>() {
-                    self.output.send(Token::tok_number(num));
+                if let Ok(num) = num_string.parse::<f64>() {
+                    self.output.send(Token::TokNumber(num));
                 } else {
-                    panic!("Malformed number :{:?}", numString);
+                    panic!("Malformed number :{:?}", num_string);
                 }
             } else if lastchar == '#' {
                 loop {
@@ -87,16 +87,16 @@ impl Lexer {
                             }
                         }
                         Err(_) => {
-                            self.output.send(Token::tok_eof);
+                            self.output.send(Token::TokEof);
                             return;
                         }
                     }
                 }
             } else if lastchar == '$' {
-                self.output.send(Token::tok_eof);
+                self.output.send(Token::TokEof);
                 return;
             } else {
-                self.output.send(Token::tok_char(lastchar));
+                self.output.send(Token::TokChar(lastchar));
                 lastchar = ' ';
             }
         }
@@ -120,29 +120,29 @@ mod test {
              ";
         //a bs sad = + . 123 1221.2 def exter ty wtf ! #
         let expected = vec![
-            Token::tok_identifier("a".into()),
-            Token::tok_identifier("a".into()),
-            Token::tok_identifier("a".into()),
-            Token::tok_identifier("a".into()),
-            Token::tok_identifier("bs".into()),
-            Token::tok_identifier("sad".into()),
-            Token::tok_number(123.0),
-            Token::tok_char('='),
-            Token::tok_char('+'),
-            Token::tok_char('*'),
-            Token::tok_char('-'),
-            Token::tok_char('/'),
-            Token::tok_number(1221.2),
-            Token::tok_def,
-            Token::tok_identifier("externa".into()),
-            Token::tok_identifier("ty".into()),
-            Token::tok_identifier("wtf".into()),
-            Token::tok_char('!'),
-            Token::tok_eof,
+            Token::TokIdentifier("a".into()),
+            Token::TokIdentifier("a".into()),
+            Token::TokIdentifier("a".into()),
+            Token::TokIdentifier("a".into()),
+            Token::TokIdentifier("bs".into()),
+            Token::TokIdentifier("sad".into()),
+            Token::TokNumber(123.0),
+            Token::TokChar('='),
+            Token::TokChar('+'),
+            Token::TokChar('*'),
+            Token::TokChar('-'),
+            Token::TokChar('/'),
+            Token::TokNumber(1221.2),
+            Token::TokDef,
+            Token::TokIdentifier("externa".into()),
+            Token::TokIdentifier("ty".into()),
+            Token::TokIdentifier("wtf".into()),
+            Token::TokChar('!'),
+            Token::TokEof,
         ];
         let (tx, inputstream) = channel();
-        let (tokenStream, rx) = channel();
-        let mut lexer = Lexer::new(inputstream, tokenStream);
+        let (token_stream, rx) = channel();
+        let mut lexer = Lexer::new(inputstream, token_stream);
         let t0 = thread::spawn(move || {
             lexer.get_token();
         });

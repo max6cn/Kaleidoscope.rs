@@ -2,12 +2,12 @@
 extern crate log;
 extern crate env_logger;
 
-pub mod Token;
+pub mod token;
 
-pub mod Ast;
-pub mod Codegen;
-pub mod Lexer;
-pub mod Parser;
+pub mod ast;
+pub mod codegen;
+pub mod lexer;
+pub mod parser;
 use Token::*;
 use Lexer::*;
 use Parser::*;

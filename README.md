@@ -11,8 +11,8 @@ Kaleidoscope in Rust, See [My First Language Frontend with LLVM Tutorial](http:/
 
 ## Guide
 
-- [ ] [Chapter #1: Kaleidoscope language and Lexer](http://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl01.html)
-- [ ] [Chapter #2: Implementing a Parser and AST](http://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl02.html)
+- [ ] [Chapter #1: Kaleidoscope language and lexer](http://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl01.html)
+- [ ] [Chapter #2: Implementing a parser and AST](http://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl02.html)
 - [ ] [Chapter #3: Code generation to LLVM IR](http://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl03.html)
 - [ ] [Chapter #4: Adding JIT and Optimizer Support](http://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl04.html)
 - [ ] [Chapter #5: Extending the Language: Control Flow](http://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl05.html)
@@ -27,24 +27,24 @@ Kaleidoscope in Rust, See [My First Language Frontend with LLVM Tutorial](http:/
 ```
 RUST_LOG=lib=debug ./target/debug/Kaleidoscope
 ready> def foo(x y) x+foo(y, 4.0);
-DEBUG:lib::Parser: Parse  definition
-DEBUG:lib::Parser: Parse ProtoType
-DEBUG:lib::Parser: Got prototype: PrototypeAst { Name: "foo", Args: ["x", "y"] }
-DEBUG:lib::Parser: Parse expression
-DEBUG:lib::Parser: Parse Primary
-DEBUG:lib::Parser: Parse Identifier
-DEBUG:lib::Parser: Parse binOpRHS
-DEBUG:lib::Parser: Parse Primary
-DEBUG:lib::Parser: Parse Identifier
-DEBUG:lib::Parser: Parse expression
-DEBUG:lib::Parser: Parse Primary
-DEBUG:lib::Parser: Parse Identifier
-DEBUG:lib::Parser: Parse binOpRHS
-DEBUG:lib::Parser: Parse expression
-DEBUG:lib::Parser: Parse Primary
-DEBUG:lib::Parser: Parse Number exp
-DEBUG:lib::Parser: Parse binOpRHS
-DEBUG:lib::Parser: Parsed a function Definition
+DEBUG:lib::parser: Parse  definition
+DEBUG:lib::parser: Parse ProtoType
+DEBUG:lib::parser: Got prototype: PrototypeAst { name: "foo", args: ["x", "y"] }
+DEBUG:lib::parser: Parse expression
+DEBUG:lib::parser: Parse Primary
+DEBUG:lib::parser: Parse Identifier
+DEBUG:lib::parser: Parse binOpRHS
+DEBUG:lib::parser: Parse Primary
+DEBUG:lib::parser: Parse Identifier
+DEBUG:lib::parser: Parse expression
+DEBUG:lib::parser: Parse Primary
+DEBUG:lib::parser: Parse Identifier
+DEBUG:lib::parser: Parse binOpRHS
+DEBUG:lib::parser: Parse expression
+DEBUG:lib::parser: Parse Primary
+DEBUG:lib::parser: Parse Number exp
+DEBUG:lib::parser: Parse binOpRHS
+DEBUG:lib::parser: Parsed a function Definition
 ready>
 ```
 ## License

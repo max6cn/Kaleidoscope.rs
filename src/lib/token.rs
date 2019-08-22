@@ -2,10 +2,10 @@
 // these for known things.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Token {
-    tok_eof,
-    tok_def,
-    tok_extern,
-    tok_identifier(String),
-    tok_number(f64),
-    tok_char(char),
+    TokEof,
+    TokDef,
+    TokExtern,
+    TokIdentifier(String),
+    TokNumber(f64),
+    TokChar(char),
 }
