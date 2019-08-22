@@ -7,40 +7,40 @@
 // VariableExprAst -> name
 // BinaryExprAst -> lhs op rhs
 // struct ExprAst ;
-#[derive(Debug)]
-pub enum ExprAst {
-    NumberExprAst,
-    VariableExprAst,
-    BinaryExprAst,
-    CallExprAst,
-}
+
 // trait ExprAst {
 //     fn codegen(&self,&mut parser) -> i32 {
 //         0
 //     }
 // }
 
-#[derive(Debug)]
+#[derive(Debug,Clone,Copy)]
 pub struct NumberExprAst {
     pub val: f64,
 }
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct VariableExprAst {
     pub name: String,
 }
-#[derive(Debug)]
-pub struct BinaryExprAst<'a> {
+#[derive(Debug,Clone)]
+pub struct BinaryExprAst {
     pub op: char,
-    pub lhs: &'a ExprAst,
-    pub rhs: &'a ExprAst,
+    pub lhs: Box<ExprAst>,
+    pub rhs: Box<ExprAst>,
 }
 
-#[derive(Debug)]
-pub struct CallExprAst<'a> {
+#[derive(Debug,Clone)]
+pub struct CallExprAst {
     pub callee: String,
-    pub args: Vec<&'a ExprAst>,
+    pub args: Vec< ExprAst>,
 }
-
+#[derive(Debug,Clone)]
+pub enum ExprAst {
+    NumberExpr(NumberExprAst),
+    VariableExpr(VariableExprAst),
+    BinaryExpr(BinaryExprAst),
+    CallExpr(CallExprAst),
+}
 #[derive(Debug)]
 pub struct PrototypeAst {
     pub name: String,
@@ -48,7 +48,7 @@ pub struct PrototypeAst {
 }
 
 #[derive(Debug)]
-pub struct FunctionAst<'a> {
+pub struct FunctionAst {
     pub proto: PrototypeAst,
-    pub body: &'a ExprAst,
+    pub body: Box<ExprAst>,
 }

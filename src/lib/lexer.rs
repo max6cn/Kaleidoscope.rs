@@ -1,6 +1,4 @@
-use std::io;
-use std::io::{Read, Write};
-use std::sync::mpsc::{channel, Receiver, Sender};
+use std::sync::mpsc::{ Receiver, Sender};
 use token::*;
 
 pub struct Lexer {
@@ -37,7 +35,7 @@ impl Lexer {
                                 break;
                             }
                         }
-                        Err(e) => {
+                        Err(_e) => {
                             self.output.send(Token::TokEof);
                         }
                     }
@@ -68,7 +66,6 @@ impl Lexer {
                         Err(_) => {
                             self.output.send(Token::TokEof);
                             return;
-                            unreachable!();
                         }
                     }
                 }
@@ -109,7 +106,6 @@ mod test {
     extern crate env_logger;
     extern crate log;
 
-    use super::super::token::*;
     use super::*;
     use std::sync::mpsc::channel;
     use std::thread;
