@@ -12,7 +12,7 @@ pub enum ExprAst {
     NumberExprAst,
     VariableExprAst,
     BinaryExprAst,
-    CallExprAst
+    CallExprAst,
 }
 // trait ExprAst {
 //     fn codegen(&self,&mut Parser) -> i32 {
@@ -20,28 +20,35 @@ pub enum ExprAst {
 //     }
 // }
 
-
 #[derive(Debug)]
-pub struct NumberExprAst {pub val : f64}
+pub struct NumberExprAst {
+    pub val: f64,
+}
 #[derive(Debug)]
-pub struct VariableExprAst {pub name : String}
+pub struct VariableExprAst {
+    pub name: String,
+}
 #[derive(Debug)]
 pub struct BinaryExprAst<'a> {
-    pub Op : char,
-    pub LHS : &'a  ExprAst ,
-    pub RHS : &'a  ExprAst,}
+    pub Op: char,
+    pub LHS: &'a ExprAst,
+    pub RHS: &'a ExprAst,
+}
 
 #[derive(Debug)]
-pub struct CallExprAst <'a> {
+pub struct CallExprAst<'a> {
     pub Callee: String,
-    pub Args : Vec<&'a ExprAst>}
+    pub Args: Vec<&'a ExprAst>,
+}
 
 #[derive(Debug)]
 pub struct PrototypeAst {
-    pub Name:String,
-    pub Args:Vec<String>}
+    pub Name: String,
+    pub Args: Vec<String>,
+}
 
 #[derive(Debug)]
-pub struct FunctionAst<'a>{
-    pub Proto :  PrototypeAst,
-    pub Body:  &'a ExprAst,}
+pub struct FunctionAst<'a> {
+    pub Proto: PrototypeAst,
+    pub Body: &'a ExprAst,
+}
