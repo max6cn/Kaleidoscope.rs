@@ -1,9 +1,6 @@
 use ast::*;
-use lexer::*;
-use llvm_sys::*;
-use parser::*;
-use token::*;
 
+trait AnyValue {}
 trait CodeGen {
     fn codegen(&self) -> Box<AnyValue>;
 }

@@ -405,25 +405,32 @@ mod test {
     use super::super::lexer::*;
     use super::super::token::*;
     use super::Parser;
+    use log::LevelFilter;
+
+    fn init() {
+        let _ = env_logger::builder()
+            .filter(None, LevelFilter::Info)
+            .is_test(true)
+            .try_init();
+    }
+
     #[test]
     fn test_binop_pre() {
         let (tx, rx) = channel();
         let mut parser = Parser::new(rx);
         let mut check = |ch, expect| {
-            tx.send(Token::TokChar(ch));
+            tx.send(Token::TokChar(ch)).expect("Cant Send");
             parser.get_next_token();
             let res = parser.get_tok_precedence();
             assert_eq!(res, expect);
         };
         check('+', 20);
         check('-', 20);
-        check('/', 1);
+        check('/', -1);
         check('*', 40);
     }
     #[test]
     fn test_def() {
-        env_logger::init();
-
         let (tx, rx) = channel();
         thread::spawn(move || {
             // tx.send(token::TokDef);
@@ -440,7 +447,7 @@ mod test {
         let res = parser.parse_definition();
         let res_str = format!("{:?}", res);
         // dbg!(res);
-        assert_eq!(res_str, "None "); // test case wrong
+        assert_eq!(res_str, "Some(FunctionAst { proto: PrototypeAst { name: \"a\", args: [\"b\"] }, body: NumberExpr(NumberExprAst { val: 123.1 }) })"); // test case wrong
     }
     /// rx_char_stream ----> test_stub  ----> tx_char_stream
     /// rx_char_stream --> lexer --> tx_token_stream
@@ -448,7 +455,7 @@ mod test {
     ///
     #[test]
     fn test_parse_input() {
-        env_logger::init();
+        init();
         let _prog = r"
 # Compute the x'th fibonacci number.
 def fib(x)
@@ -460,7 +467,7 @@ def fib(x)
 # This expression will compute the 40th number.
 fib(40)
 ";
-        let prog2 = r"
+        let _prog2 = r"
 # Compute the x'th fibonacci number.
 def sum(x)
   a = x - 1

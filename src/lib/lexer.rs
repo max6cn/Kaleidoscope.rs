@@ -107,7 +107,6 @@ mod test {
     //#[macro_use]
     extern crate env_logger;
     extern crate log;
-
     use super::*;
     use std::sync::mpsc::channel;
     use std::thread;
@@ -132,6 +131,7 @@ mod test {
             Token::TokChar('/'),
             Token::TokNumber(1221.2),
             Token::TokDef,
+            Token::TokIdentifier("defs".into()),
             Token::TokIdentifier("externa".into()),
             Token::TokIdentifier("ty".into()),
             Token::TokIdentifier("wtf".into()),
@@ -167,11 +167,11 @@ mod test {
             }
             println!("tokens : {:?}", tokens);
             assert_eq!(tokens, expected);
-            t.join();
+            let _ = t.join();
         };
 
         check(program.chars(), expected);
-        t0.join();
+        let _ = t0.join();
     }
 
 }

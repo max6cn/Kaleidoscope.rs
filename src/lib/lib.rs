@@ -1,7 +1,8 @@
 #[macro_use]
 extern crate log;
 extern crate env_logger;
-extern crate llvm_sys;
+extern crate inkwell;
+
 pub mod token;
 
 pub mod ast;
