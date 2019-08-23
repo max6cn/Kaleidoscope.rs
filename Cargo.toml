@@ -12,8 +12,8 @@ doc = true
 
 
 [dependencies]
-env_logger = "*"
-log = "*"
-libc = "*"
+env_logger = "0.6.2"
+log = "0.4.8"
+libc = "0.2.62"
 inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "llvm8-0" }
 #llvm-sys = "80.1.1"

@@ -25,6 +25,9 @@ Kaleidoscope in Rust, See [My First Language Frontend with LLVM Tutorial](http:/
 ## Status
 
 ```
+export RUST_LOG=main=trace,lib=trace
+export LLVM_SYS_80_PREFIX=$HOME/llvm-8.0.1
+
 RUST_LOG=lib=debug ./target/debug/Kaleidoscope
 ready> def foo(x y) x+foo(y, 4.0);
 DEBUG:lib::parser: Parse  definition
