@@ -1,7 +1,6 @@
 use std::collections::HashMap;
-use std::io::{ stdout,  Write};
-use std::mem::transmute;
-use std::sync::mpsc::{ Receiver};
+use std::io::{stdout, Write};
+use std::sync::mpsc::Receiver;
 
 //use super::token::{TokChar,TokNumber,TokIdentifier,TokDef,TokEof,TokExtern};
 use ast::*;
@@ -23,11 +22,11 @@ impl<'a> Parser {
         binop_precedence.insert('-', 20);
         binop_precedence.insert('*', 40);
         // highest
-        return Parser {
-            token_input: token_input,
+        Parser {
+            token_input,
             current_token: Token::TokChar(' '),
-            binop_precedence: binop_precedence,
-        };
+            binop_precedence,
+        }
     }
     fn get_tok_precedence(&mut self) -> i8 {
         match self.current_token {
@@ -35,10 +34,10 @@ impl<'a> Parser {
                 if self.binop_precedence.contains_key(&ch) {
                     self.binop_precedence[&ch]
                 } else {
-                    1
+                    -1
                 }
-            },
-            _ => return -1,
+            }
+            _ => -1,
         }
     }
     fn get_next_token(&mut self) -> Token {
@@ -49,25 +48,25 @@ impl<'a> Parser {
             }
             Err(_) => Token::TokEof,
         };
-        return self.current_token.clone();
+        self.current_token.clone()
     }
     ///
     /// identifierexpr
     ///   ::= identifier
     ///   ::= identifier '(' expression* ')'
     ///
-    fn parse_identifier_expr(&mut self) -> Option< ExprAst> {
-        debug!("Parse Identifier: {:?} ",self.current_token);
-        if let Token::TokIdentifier(idName) = self.current_token.clone() {
+    fn parse_identifier_expr(&mut self) -> Option<ExprAst> {
+        debug!("Parse Identifier: {:?} ", self.current_token);
+        if let Token::TokIdentifier(id_name) = self.current_token.clone() {
             self.get_next_token();
             // simple variable ref
             if self.current_token != Token::TokChar('(') {
-                let exp = VariableExprAst { name: idName };
+                let exp = VariableExprAst { name: id_name };
                 return Some(ExprAst::VariableExpr(exp));
             }
             // call.
             self.get_next_token(); //eat (
-            let mut args: Vec< ExprAst> = vec![];
+            let mut args: Vec<ExprAst> = vec![];
             if self.current_token != Token::TokChar(')') {
                 loop {
                     let e = self.parse_expression();
@@ -83,7 +82,7 @@ impl<'a> Parser {
                     if self.current_token == Token::TokChar(')') {
                         break;
                     }
-                    if self.current_token!= Token::TokChar(',') {
+                    if self.current_token != Token::TokChar(',') {
                         debug!("Error, Expect ')' or ',' in argument list");
                         return None;
                     }
@@ -93,7 +92,7 @@ impl<'a> Parser {
             // eat the ')'
             self.get_next_token();
             let call_expr_ast = CallExprAst {
-                callee: idName,
+                callee: id_name,
                 args,
             };
             return Some(ExprAst::CallExpr(call_expr_ast));
@@ -104,7 +103,7 @@ impl<'a> Parser {
     /// numberexpr ::= number
     ///
     fn parse_number_expr(&mut self) -> Option<ExprAst> {
-        debug!("Parse Number exp : {:?} ",self.current_token);
+        debug!("Parse Number exp : {:?} ", self.current_token);
         let result = NumberExprAst {
             val: match self.current_token.clone() {
                 Token::TokNumber(v) => v,
@@ -120,8 +119,8 @@ impl<'a> Parser {
     ///
     /// parenexpr ::= '(' expression ')'
     ///
-    fn parse_paren_expr(&mut self) -> Option< ExprAst> {
-        debug!("parse Paren Expr: {:?} ",self.current_token);
+    fn parse_paren_expr(&mut self) -> Option<ExprAst> {
+        debug!("parse Paren Expr: {:?} ", self.current_token);
         self.get_next_token(); // eat (.
         if let Some(v) = self.parse_expression() {
             if self.current_token != Token::TokChar(')') {
@@ -140,7 +139,7 @@ impl<'a> Parser {
     ///   ::= parenexpr
     ///
     fn parse_primary(&mut self) -> Option<ExprAst> {
-        debug!("Parse Primary: {:?} ",self.current_token);
+        debug!("Parse Primary: {:?} ", self.current_token);
         match self.current_token.clone() {
             Token::TokIdentifier(_id) => self.parse_identifier_expr(),
             Token::TokNumber(_val) => self.parse_number_expr(),
@@ -155,17 +154,24 @@ impl<'a> Parser {
     /// binoprhs
     ///   ::= ('+' primary)*
     ///
-    fn parse_bin_op_rhs(&mut self, expr_prec: i8, lhs: & ExprAst) -> Option<Box< ExprAst>> {
+    fn parse_bin_op_rhs(&mut self, expr_prec: i8, lhs: &ExprAst) -> Option<Box<ExprAst>> {
+        let mut lhs_local = lhs.clone();
         loop {
             let tok_prec = self.get_tok_precedence();
-            debug!("---> Parse binOpRHS: lhs = {:? }, {:?}  ",lhs, self.current_token);
-            debug!("---> tok_precedence {:?}, expression prec {} ",tok_prec,expr_prec);
+            debug!(
+                "---> Parse binOpRHS: lhs = {:? }, {:?}  ",
+                lhs_local, self.current_token
+            );
+            debug!(
+                "---> tok_precedence {:?}, expression prec {} ",
+                tok_prec, expr_prec
+            );
 
             // If this is a binop that binds at least as tightly as the current binop,
             // consume it, otherwise we are done.
             if tok_prec < expr_prec {
-                let r = Box::new(lhs.clone());
-                debug!("parse_bin_op_rhs: Got {:?}",r);
+                let r = Box::new(lhs_local);
+                debug!("parse_bin_op_rhs: Got {:?}", r);
                 return Some(r);
             }
             // Okay, we know this is a binop.
@@ -174,28 +180,26 @@ impl<'a> Parser {
                 _ => unreachable!(),
             };
             self.get_next_token(); //eat binop
-            // Parse the primary expression after the binary operator.
+                                   // Parse the primary expression after the binary operator.
             match self.parse_primary() {
                 Some(rhs) => {
                     // If BinOp binds less tightly with rhs than the operator after rhs, let
                     // the pending operator take rhs as its lhs.
-                    debug!("------> {:?} : {} : {:?}",lhs, bin_op, rhs);
+                    debug!("------> {:?} : {} : {:?}", lhs_local, bin_op, rhs);
                     let next_prec = self.get_tok_precedence();
                     if tok_prec < next_prec {
                         let rhs = self.parse_bin_op_rhs(tok_prec + 1, &rhs);
-                        if rhs.is_none() {
-                            return None;
-                        }
+                        rhs.as_ref()?;
                     }
                     // Merge LHS/RHS.
-                    let nlhs = BinaryExprAst {  op: bin_op,
-                                    lhs: Box::new(lhs.clone()),
-                                    rhs: Box::new(rhs) };
-                    debug!("Got Expr: {:?}", &nlhs);
-                    let r = Some(Box::new( ExprAst::BinaryExpr(nlhs)));
-                    return r;
-
-                },
+                    let nlhs = BinaryExprAst {
+                        op: bin_op,
+                        lhs: Box::new(lhs_local.clone()),
+                        rhs: Box::new(rhs),
+                    };
+                    lhs_local = ExprAst::BinaryExpr(nlhs);
+                    debug!("Got Expr: {:?}", &lhs_local);
+                }
                 None => {
                     debug!("Got Nothing in BinOP");
                     return None;
@@ -208,8 +212,8 @@ impl<'a> Parser {
     ///   ::= primary binoprhs
     ///
     ///
-    fn parse_expression(&mut self) -> Option<Box< ExprAst>> {
-        debug!("Parse expression: {:?} ",self.current_token);
+    fn parse_expression(&mut self) -> Option<Box<ExprAst>> {
+        debug!("Parse expression: {:?} ", self.current_token);
         if let Some(lhs) = self.parse_primary() {
             match self.parse_bin_op_rhs(0, &lhs) {
                 // return Some(Box::new(*exp));
@@ -226,7 +230,7 @@ impl<'a> Parser {
     ///   ::= id '(' id* ')'
     ///
     fn parse_proto_type(&mut self) -> Option<PrototypeAst> {
-        debug!("Parse ProtoType : {:?} ",self.current_token);
+        debug!("Parse ProtoType : {:?} ", self.current_token);
         match self.current_token.clone() {
             Token::TokIdentifier(id) => {
                 let fn_name = id;
@@ -282,7 +286,7 @@ impl<'a> Parser {
     /// definition ::= 'def' prototype expression
     ///
     fn parse_definition(&mut self) -> Option<Box<FunctionAst>> {
-        debug!("Parse  definition: {:?} ",self.current_token);
+        debug!("Parse  definition: {:?} ", self.current_token);
         self.get_next_token();
         match self.parse_proto_type() {
             Some(proto) => match self.parse_expression() {
@@ -301,7 +305,7 @@ impl<'a> Parser {
     fn parse_top_level_expr(&mut self) -> Option<Box<FunctionAst>> {
         if let Some(expr) = self.parse_expression() {
             // make an anonymous proto.
-            debug!("parse_top_level_expr: {:?} ",self.current_token);
+            debug!("parse_top_level_expr: {:?} ", self.current_token);
             let prot1 = Box::new(PrototypeAst {
                 name: "".to_string(),
                 args: vec![],
@@ -317,7 +321,7 @@ impl<'a> Parser {
     /// external ::= 'extern' prototype
     fn parse_extern(&mut self) -> Option<PrototypeAst> {
         self.get_next_token();
-        return self.parse_proto_type();
+        self.parse_proto_type()
     }
     //===----------------------------------------------------------------------===//
     // Top-Level parsing
@@ -352,7 +356,7 @@ impl<'a> Parser {
             }
         };
     }
-    pub fn run(&mut self) -> () {
+    pub fn run(&mut self) {
         print!("ready> ");
         stdout().flush().unwrap();
         self.get_next_token();
@@ -398,9 +402,9 @@ mod test {
     use std::sync::mpsc::channel;
     use std::thread;
 
+    use super::super::lexer::*;
     use super::super::token::*;
     use super::Parser;
-    use super::super::lexer::*;
     #[test]
     fn test_binop_pre() {
         let (tx, rx) = channel();
@@ -413,22 +417,24 @@ mod test {
         };
         check('+', 20);
         check('-', 20);
-        check('/', -1);
+        check('/', 1);
         check('*', 40);
     }
     #[test]
     fn test_def() {
-        env_logger::init().unwrap();
+        env_logger::init();
 
         let (tx, rx) = channel();
         thread::spawn(move || {
             // tx.send(token::TokDef);
-            tx.send(Token::TokIdentifier("a".to_string()));
-            tx.send(Token::TokChar('('));
-            tx.send(Token::TokIdentifier("b".to_string()));
-            tx.send(Token::TokChar(')'));
-            tx.send(Token::TokNumber(123.1));
-            tx.send(Token::TokEof);
+            tx.send(Token::TokIdentifier("a".to_string()))
+                .expect("Send Error");
+            tx.send(Token::TokChar('(')).expect("Send Error");
+            tx.send(Token::TokIdentifier("b".to_string()))
+                .expect("Send Error");
+            tx.send(Token::TokChar(')')).expect("Send Error");
+            tx.send(Token::TokNumber(123.1)).expect("Send Error");
+            tx.send(Token::TokEof).expect("Send Error");
         });
         let mut parser = Parser::new(rx);
         let res = parser.parse_definition();
@@ -442,7 +448,7 @@ mod test {
     ///
     #[test]
     fn test_parse_input() {
-        env_logger::init().unwrap();
+        env_logger::init();
         let _prog = r"
 # Compute the x'th fibonacci number.
 def fib(x)
@@ -468,14 +474,14 @@ fib(40)
          def foo(x)
              x + 1
          ";
-        debug!("input :\n{}",prog3);
+        debug!("input :\n{}", prog3);
         let (tx_char_stream, rx_char_stream) = channel();
         let (tx_token_stream, rx_token_stream) = channel();
         let lexer_guard = thread::spawn(move || {
             for c in prog3.chars() {
-                let _ = tx_char_stream.send(c);
+                let _ = tx_char_stream.send(c).expect("Send Error");
             }
-            let _ = tx_char_stream.send('$');
+            let _ = tx_char_stream.send('$').expect("Send Error");
             let mut lexer = Lexer::new(rx_char_stream, tx_token_stream);
             lexer.get_token();
         });

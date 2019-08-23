@@ -17,8 +17,8 @@ extern crate libc;
 // use lib::parser::*;
 // use lib::token::*;
 fn main() {
-        env_logger::init().unwrap();
-        info!("starting");
+    env_logger::init();
+    info!("starting");
     //     let (tokenSender, tokenReceiver) = channel::<token>();
     //     let g1 = thread::spawn(move || {
     //         let mut lexer = lexer::new(tokenSender);

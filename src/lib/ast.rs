@@ -14,27 +14,27 @@
 //     }
 // }
 
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct NumberExprAst {
     pub val: f64,
 }
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct VariableExprAst {
     pub name: String,
 }
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct BinaryExprAst {
     pub op: char,
     pub lhs: Box<ExprAst>,
     pub rhs: Box<ExprAst>,
 }
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct CallExprAst {
     pub callee: String,
-    pub args: Vec< ExprAst>,
+    pub args: Vec<ExprAst>,
 }
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub enum ExprAst {
     NumberExpr(NumberExprAst),
     VariableExpr(VariableExprAst),

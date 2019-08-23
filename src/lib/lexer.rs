@@ -1,4 +1,4 @@
-use std::sync::mpsc::{ Receiver, Sender};
+use std::sync::mpsc::{Receiver, Sender};
 use token::*;
 
 pub struct Lexer {
@@ -7,7 +7,7 @@ pub struct Lexer {
 }
 impl Lexer {
     pub fn new(input: Receiver<char>, output: Sender<Token>) -> Lexer {
-        return Lexer { input, output };
+        Lexer { input, output }
     }
 
     pub fn get_token(&mut self) {
@@ -18,7 +18,7 @@ impl Lexer {
                 if let Ok(ch) = self.input.recv() {
                     lastchar = ch;
                 } else {
-                    self.output.send(Token::TokEof);
+                    self.output.send(Token::TokEof).expect("Send Error");
                 }
             }
             if lastchar.is_alphabetic() {
@@ -36,14 +36,14 @@ impl Lexer {
                             }
                         }
                         Err(_e) => {
-                            self.output.send(Token::TokEof);
+                            self.output.send(Token::TokEof).expect("Send Error");
                         }
                     }
                 }
                 // FIXME:
                 // if ident matches keyword at begining, we should wait until the
                 // ident match finished
-                match identifier_str.as_str() {
+                let _e = match identifier_str.as_str() {
                     "def" => self.output.send(Token::TokDef),
                     "extern" => self.output.send(Token::TokExtern),
                     identifier => self
@@ -64,13 +64,13 @@ impl Lexer {
                             }
                         }
                         Err(_) => {
-                            self.output.send(Token::TokEof);
+                            self.output.send(Token::TokEof).expect("Send Error");
                             return;
                         }
                     }
                 }
                 if let Ok(num) = num_string.parse::<f64>() {
-                    self.output.send(Token::TokNumber(num));
+                    self.output.send(Token::TokNumber(num)).expect("Send Error");
                 } else {
                     panic!("Malformed number :{:?}", num_string);
                 }
@@ -84,16 +84,18 @@ impl Lexer {
                             }
                         }
                         Err(_) => {
-                            self.output.send(Token::TokEof);
+                            self.output.send(Token::TokEof).expect("Send Error");
                             return;
                         }
                     }
                 }
             } else if lastchar == '$' {
-                self.output.send(Token::TokEof);
+                self.output.send(Token::TokEof).expect("Send Error");
                 return;
             } else {
-                self.output.send(Token::TokChar(lastchar));
+                self.output
+                    .send(Token::TokChar(lastchar))
+                    .expect("Send Error");
                 lastchar = ' ';
             }
         }
@@ -146,9 +148,9 @@ mod test {
             let tx1 = tx.clone();
             let t = thread::spawn(move || {
                 for c in text {
-                    tx1.send(c);
+                    tx1.send(c).expect("Send Error");
                 }
-                tx1.send('$');
+                tx1.send('$').expect("Send Error");
                 drop(tx1);
             });
             let mut tokens = vec![];
