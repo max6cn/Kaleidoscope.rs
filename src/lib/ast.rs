@@ -52,3 +52,9 @@ pub struct FunctionAst {
     pub proto: PrototypeAst,
     pub body: Box<ExprAst>,
 }
+#[derive(Debug)]
+pub enum Ast {
+    FAst(FunctionAst),
+    PAst(PrototypeAst),
+    EAst(ExprAst),
+}
